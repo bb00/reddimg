@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+import sys, requests, os, argparse, logging
+
+def preview(location, resource_file):
+    if location is not None:
+        os.system(f'wal -i {location}/{resource_file}')
+    else:
+        os.system(f'wal -i ~/.wallpapers/{resource_file}')
+
+def download():
+    pass
+parser = argparse.ArgumentParser(description='Fetch a full-size background based off of a supplied preview link.')
+parser.add_argument('url', type=str,
+                    help='Required URL')
+parser.add_argument('-i', dest='preview', action='store_true',
+            help='Set the background to the downloaded image (requires feh and pywal)')
+
+parser.add_argument('-d', dest='directory', type=str, nargs='?')
+
+args = parser.parse_args()
+
+location = None
+url = args.url
+print(args.directory)
+if args.directory:
+    location = args.directory
+extracted_base = url.split('?')[0]
+print(extracted_base)
+new_uri = extracted_base.replace('preview','i')
+print(extracted_base.split('/'))
+resource_file = extracted_base.split('/')[-1]
+print(resource_file)
+content = requests.get(new_uri).content
+with open(os.path.expanduser(f'~/.wallpapers/{resource_file}'), 'wb') as f:
+    f.write(content)
+    f.close()
+if args.preview:
+    preview(location, resource_file)
+#args = parser.parse_args()
+
+
